@@ -1,0 +1,1 @@
+-- create table user_history (id INTEGER AUTO_INCREMENT, history varchar(300), user varchar(100));
