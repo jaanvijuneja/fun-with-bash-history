@@ -12,10 +12,19 @@ if os.path.exists(history_file_path):
     with open(history_file_path, 'r') as file:
         history = file.readlines()
 
+cleaned_history = []
+for item in history:
+    cleaned_history.append(item.strip())
 
+history_list = []
+        
+for i in range(len(cleaned_history)):
+    if cleaned_history[i].startswith('#') and len(cleaned_history[i]) == 11:
+        inner_list = cleaned_history[i], cleaned_history[i+1]
+        history_list.append(inner_list)
 
-for data in history:
+for timestamp, command in history_list:
     sql_querry = f"""
-    insert into user_history (history, user) VALUES (%s, 'jaanvi')
+    insert into user_history (timestamp, command, user) VALUES (%s, %s, 'jaanvi')
     """
-    database_connection.insert_history(localhost, username, password, database, sql_querry, data)
+    database_connection.insert_history(localhost, username, password, database, sql_querry, timestamp, command)

@@ -1,1 +1,7 @@
--- create table user_history (id INTEGER AUTO_INCREMENT, history varchar(300), user varchar(100));
+-- CREATE TABLE user_history (
+--    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+--    command VARCHAR(500),
+--    timestamp VARCHAR(50),
+--    user VARCHAR(100)
+--);
+

@@ -1,6 +1,6 @@
 import mysql.connector
 
-def insert_history (host, user, password, database, sql_querry, data):
+def insert_history (host, user, password, database, sql_querry, timestamp, command):
     connection_string = mysql.connector.connect (
         host = host,
         user = user,
@@ -9,5 +9,5 @@ def insert_history (host, user, password, database, sql_querry, data):
         )
     
     with connection_string.cursor() as cursor:
-        cursor.execute(sql_querry, (data,))
+        cursor.execute(sql_querry, (timestamp, command, ))
         connection_string.commit()
