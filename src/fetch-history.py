@@ -20,11 +20,14 @@ history_list = []
         
 for i in range(len(cleaned_history)):
     if cleaned_history[i].startswith('#') and len(cleaned_history[i]) == 11:
-        inner_list = cleaned_history[i], cleaned_history[i+1]
+        inner_list = cleaned_history[i][1:], cleaned_history[i+1]
         history_list.append(inner_list)
+sql_querry = f"""
+select max(unix_timestamp) from user_history
+"""
 
 for timestamp, command in history_list:
     sql_querry = f"""
-    insert into user_history (timestamp, command, user) VALUES (%s, %s, 'jaanvi')
+    insert into user_history (unix_timestamp, command, system_timestamp, user) VALUES (%s, %s, FROM_UNIXTIME(unix_timestamp), 'jaanvi')
     """
     database_connection.insert_history(localhost, username, password, database, sql_querry, timestamp, command)
