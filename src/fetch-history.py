@@ -1,10 +1,12 @@
 import os
-import database_connection
+from database_connection import sql_connector
 
 localhost = '127.0.0.1'
 username = 'root'
 password = 'Secret55'
 database = 'store_history_bash'
+
+mysql_connector = sql_connector(localhost, username, password, database)
 
 history_file_path = os.path.expanduser('~/.bash_history')
 
@@ -17,17 +19,40 @@ for item in history:
     cleaned_history.append(item.strip())
 
 history_list = []
-        
-for i in range(len(cleaned_history)):
-    if cleaned_history[i].startswith('#') and len(cleaned_history[i]) == 11:
-        inner_list = cleaned_history[i][1:], cleaned_history[i+1]
-        history_list.append(inner_list)
-sql_querry = f"""
-select max(unix_timestamp) from user_history
+
+sql_querry_to_check_table = f"""
+select EXISTS(select id FROM user_history LIMIT 1);
 """
+
+exists = mysql_connector.get_exists(sql_querry_to_check_table)
+
+if exists:
+
+    sql_querry_max_timestamp = f"""
+    select max(unix_timestamp) from user_history
+    """
+    
+    result_max_timestamp = mysql_connector.get_max_timeframe(sql_querry_max_timestamp)
+    
+    max_timestamp = "#" + result_max_timestamp
+
+
+    for i in range(len(cleaned_history)):
+        if max_timestamp == cleaned_history[i]:
+            if cleaned_history[i].startswith('#') and len(cleaned_history[i]) == 11:
+                inner_list = cleaned_history[i][1:], cleaned_history[i+1]
+                history_list.append(inner_list)
+
+else:
+        for i in range(len(cleaned_history)):
+            if cleaned_history[i].startswith('#') and len(cleaned_history[i]) == 11:
+                inner_list = cleaned_history[i][1:], cleaned_history[i+1]
+                history_list.append(inner_list)
+
+
 
 for timestamp, command in history_list:
     sql_querry = f"""
     insert into user_history (unix_timestamp, command, system_timestamp, user) VALUES (%s, %s, FROM_UNIXTIME(unix_timestamp), 'jaanvi')
     """
-    database_connection.insert_history(localhost, username, password, database, sql_querry, timestamp, command)
+    mysql_connector.insert_history(sql_querry, timestamp, command)
